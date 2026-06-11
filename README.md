@@ -1,151 +1,98 @@
-# Board Game Recommender Data Crawler
+# Board Game Recommender Skill
 
-This repository contains a local BoardGameGeek crawler for building a SQLite
-cache suitable for recommendation.
+Codex skill for recommending board games with a local BoardGameGeek SQLite snapshot.
 
-The crawler intentionally uses BGG's official XML API and official rank CSV
-instead of scraping HTML pages. BGG currently requires an approved application
-token for XML API access. The rank CSV may also require a fresh browser cookie
-when Cloudflare challenges automated downloads.
+The skill combines conversational context with BGG metadata such as player count,
+playtime, weight, ratings, rank, categories, mechanics, publishers, versions, and
+poll summaries. It prefers practical fit over raw BGG rank.
 
-## Rating Threshold
-
-The default crawl thresholds are:
-
-- `usersrated >= 75` for normal games.
-- `usersrated >= 30` for games published in the current year or previous two years.
-
-This keeps the dataset focused on games with enough public signal for
-recommendation while still letting newer games enter the index before they have
-hundreds of ratings.
-
-## Usage
-
-Set your BGG token:
-
-```powershell
-$env:BGG_TOKEN = "your-token"
-```
-
-Optionally set a fresh BGG browser cookie for downloading rank CSV data:
-
-```powershell
-$env:BGG_COOKIE = "cf_clearance=..."
-```
-
-Download the official rank CSV:
-
-```powershell
-python .\bgg_crawler.py fetch-ranks --output data\bg_ranks.csv
-```
-
-If the official rank CSV returns a site shell or Cloudflare page, build a
-candidate CSV from BGG browse pages instead:
-
-```powershell
-python .\bgg_crawler.py fetch-browse --max-pages 200 --output data\bgg_browse_candidates.csv
-```
-
-Smoke-test one game:
-
-```powershell
-python .\bgg_crawler.py smoke-test --id 174430
-```
-
-Crawl detailed data with the default 75/30 rating thresholds:
-
-```powershell
-python .\bgg_crawler.py crawl --ranks-csv data\bg_ranks.csv --db data\bgg_games.sqlite --resume
-```
-
-Or crawl from the browse candidate CSV:
-
-```powershell
-python .\bgg_crawler.py crawl --ranks-csv data\bgg_browse_candidates.csv --db data\bgg_games.sqlite --resume
-```
-
-If you do not have a BGG XML API token, the best fallback is browser-context
-fetching. It opens BGG once through OpenCLI, then uses the browser page itself
-to `fetch()` detail HTML and extract `GEEK.geekitemPreload` without navigating
-for every game:
-
-```powershell
-opencli daemon restart
-opencli daemon status
-python .\bgg_crawler.py crawl-browser-fetch --ranks-csv data\bgg_browse_candidates.csv --db data\bgg_games.sqlite --resume --batch-size 20 --fetch-concurrency 2 --fetch-delay 1
-```
-
-This is much lighter than page-by-page browser navigation, while still using
-the connected browser context when direct HTTP is blocked.
-
-The pure HTTP fallback can also crawl the rendered page preload JSON from
-regular Python requests. This needs a reusable browser cookie when Cloudflare
-blocks direct requests:
-
-```powershell
-$env:BGG_COOKIE = "cf_clearance=...; other_cookie=..."
-python .\bgg_crawler.py crawl-html --ranks-csv data\bgg_browse_candidates.csv --db data\bgg_games.sqlite --resume --workers 2 --page-delay 1.5
-```
-
-Keep `--workers` small. BGG pages are protected by Cloudflare and this crawler
-should be treated as a polite cache builder, not a high-throughput scraper.
-
-OpenCLI is only a slow browser fallback for smoke tests or a small number of
-records. Start the daemon and make sure the Browser Bridge extension is
-connected:
-
-```powershell
-opencli daemon restart
-opencli daemon status
-```
-
-Then crawl details through rendered BGG pages:
-
-```powershell
-python .\bgg_crawler.py crawl-opencli --ranks-csv data\bgg_browse_candidates.csv --db data\bgg_games.sqlite --resume
-```
-
-This mode is slower than XML API crawling, but it can extract the frontend
-`window.GEEK.geekitemPreload.item` structure without a BGG API token.
-
-Run a small test crawl:
-
-```powershell
-python .\bgg_crawler.py crawl --ranks-csv data\bg_ranks.csv --db data\bgg_games.sqlite --limit 50 --resume
-```
-
-Useful options:
-
-```powershell
-python .\bgg_crawler.py crawl --min-users-rated 100 --recent-min-users-rated 30 --recent-years 3 --exclude-expansions --resume
-```
-
-## Output Tables
-
-- `games`: core recommendation fields, ratings, ownership counts, weight, raw JSON.
-- `game_links`: categories, mechanics, families, designers, artists, publishers.
-- `game_versions`: version names, languages, publishers.
-- `game_polls`: raw poll data such as suggested player count and language dependence.
-
-## Skill and Database Snapshot
-
-The first minimal Codex skill lives at:
+## Contents
 
 ```text
-skills/board-game-recommender
+skills/board-game-recommender/
+  SKILL.md
+  agents/openai.yaml
+  references/schema.md
+  references/recommendation-policy.md
+  scripts/query_bgg_db.py
+
+releases/v0.1/
+  bgg_games_v0.1.sqlite
+  manifest.json
+  README.md
 ```
 
-This v0.1 skill only explains and queries the local BGG SQLite database. It does
-not include recommendation policy yet.
+## Database Snapshot
 
-The first publishable database snapshot lives at:
+The bundled v0.1 database is:
 
 ```text
 releases/v0.1/bgg_games_v0.1.sqlite
 ```
 
-The release manifest with SHA-256 checksum and table counts is:
+It is a quality-oriented BGG snapshot focused on games with average rating above
+6.0 and enough rating volume to be useful for recommendations. This means it may
+underrepresent local hits, children's games, party games, very new games, and
+games popular mainly outside BGG.
 
-```text
-releases/v0.1/manifest.json
+Current v0.1 counts:
+
+| Table | Rows |
+| --- | ---: |
+| games | 2237 |
+| game_links | 87685 |
+| game_polls | 2237 |
+| game_versions | 11658 |
+| crawl_state | 4 |
+
+See `releases/v0.1/manifest.json` for the SHA-256 checksum and crawl metadata.
+
+## Skill Behavior
+
+The skill recommends games by considering:
+
+- exact player count, especially for 2-5 players;
+- country/region, language ability, and practical access;
+- whether the user wants to buy, borrow, play at a club/store, or try online;
+- play setting, group experience, desired duration, and complexity tolerance;
+- BGG quality signals and game metadata from the local database.
+
+If the local database has weak coverage for a strong user preference, the skill
+may use search or general board game knowledge and mark those candidates as
+outside the local snapshot.
+
+## Query Script
+
+Run database lookups directly with:
+
+```bash
+python skills/board-game-recommender/scripts/query_bgg_db.py search --name "gloomhaven" --limit 5
 ```
+
+Examples:
+
+```bash
+python skills/board-game-recommender/scripts/query_bgg_db.py game --id 174430
+python skills/board-game-recommender/scripts/query_bgg_db.py search --players 4 --max-playtime 120 --max-weight 3.5 --limit 20
+python skills/board-game-recommender/scripts/query_bgg_db.py links --type boardgamemechanic --limit 30
+python skills/board-game-recommender/scripts/query_bgg_db.py schema
+```
+
+By default, the script looks for the database in this order:
+
+1. `BGG_DB_PATH`
+2. `releases/v0.1/bgg_games_v0.1.sqlite`
+3. `data/bgg_games.sqlite`
+
+You can also pass an explicit path:
+
+```bash
+python skills/board-game-recommender/scripts/query_bgg_db.py schema --db path/to/bgg.sqlite
+```
+
+## Skill Files
+
+- `SKILL.md`: trigger description and high-level workflow.
+- `references/schema.md`: SQLite table and field definitions.
+- `references/recommendation-policy.md`: concise recommendation guidance.
+- `scripts/query_bgg_db.py`: deterministic JSON query helper.
