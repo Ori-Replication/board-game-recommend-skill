@@ -1,0 +1,3 @@
+display_name: Board Game Recommender
+short_description: Recommend board games using a local BGG database.
+default_prompt: Use the Board Game Recommender skill to recommend suitable board games and explain the fit using local BGG data.

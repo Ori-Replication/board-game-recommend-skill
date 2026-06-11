@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+data/
+logs/
+.env
+*.log
+*.sqlite-wal
+*.sqlite-shm
+bgg_cookie.txt

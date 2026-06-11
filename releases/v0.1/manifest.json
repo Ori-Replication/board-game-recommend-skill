@@ -1,0 +1,20 @@
+{
+  "version": "0.1",
+  "database": "bgg_games_v0.1.sqlite",
+  "created_at": "2026-06-11T12:22:31.039630+00:00",
+  "size_bytes": 43565056,
+  "sha256": "c0faa0b00a2a79b217363d862bf8af052c9a27b9b06df0389937f1ae53f79f37",
+  "tables": {
+    "crawl_state": 4,
+    "game_links": 87685,
+    "game_polls": 2237,
+    "game_versions": 11658,
+    "games": 2237
+  },
+  "source_state": {
+    "last_html_crawl_at": "2026-06-10T19:00:05+00:00",
+    "last_browser_fetch_crawl_at": "2026-06-11T07:27:03+00:00",
+    "last_opencli_crawl_at": "2026-06-11T07:57:27+00:00",
+    "last_opencli_nav_crawl_at": "2026-06-11T08:22:42+00:00"
+  }
+}
