@@ -62,7 +62,7 @@ Prefer a compact shortlist:
 2. Optional alternatives when different styles fit the same request.
 3. For each game: name, player count fit, duration, complexity, why it fits, and one caveat or access note.
 
-Use the game name that users in the target country/region are most likely to search for or recognize. If the localized/common name is known, write it first and include the BGG/English name in parentheses when useful, such as `Localized Title (BGG/English Title)`. If the local name is uncertain, keep the official/BGG name and mention that the local title should be verified.
+Use the game name that users in the target country/region are most likely to search for or recognize. If, based on your knowledge, the localized/common name is known, write it first and include the BGG/English name in parentheses when useful, such as `Localized Title (BGG/English Title)`.
 
 Use "fit condition" instead of calling heavy/long games bad. For example: "Best if someone can teach and the group has 3 hours" is more useful than "too heavy."
 
