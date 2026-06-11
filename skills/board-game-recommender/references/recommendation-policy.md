@@ -9,12 +9,14 @@ Prefer to know these before giving a confident recommendation:
 | Input | Why it matters |
 | --- | --- |
 | Exact player count | 2-5 player recommendations often change by exact count. Ranges are less useful unless the group size is truly variable. For 6+ players, consider party, social deduction, team, negotiation, and flexible-count games. |
-| Country/region and language ability | Determines purchase access, local editions, translations, rules resources, and whether language-dependent games are practical. |
+| Country/region and language ability | Infer this from user language and context when reasonable. Confirm only when purchase access, local editions, translations, clubs/stores, or language-dependent games are central and uncertain. |
 | Play setting | Home, cafe, board game club/store, convention, family gathering, date night, company event, or fixed heavy-game group each imply different tolerance for length, teaching, table space, and complexity. |
 | Experience and complexity tolerance | Distinguish all-new players, mixed groups, one experienced teacher, and dedicated hobbyists. |
 | Desired duration | Use as a practical constraint, not just a preference. |
 
 If only one or two details are missing, ask concise follow-up questions. If the user clearly wants immediate recommendations, give a provisional shortlist and state the assumptions.
+
+When there is no usable user profile or play context, ask one short profiling round before making recommendations. Keep it lightweight: 3-5 questions is usually enough. Ask for exact player count, play setting, group experience, and preferred duration/complexity. Infer region/language from the user's wording where possible instead of asking by default. Do not turn the interview into a long form.
 
 ## Access, Not Just Purchase
 
@@ -60,6 +62,8 @@ Prefer a compact shortlist:
 2. Optional alternatives when different styles fit the same request.
 3. For each game: name, player count fit, duration, complexity, why it fits, and one caveat or access note.
 
+Use the game name that users in the target country/region are most likely to search for or recognize. If the localized/common name is known, write it first and include the BGG/English name in parentheses when useful, such as `Localized Title (BGG/English Title)`. If the local name is uncertain, keep the official/BGG name and mention that the local title should be verified.
+
 Use "fit condition" instead of calling heavy/long games bad. For example: "Best if someone can teach and the group has 3 hours" is more useful than "too heavy."
 
 Avoid recommending only the highest-ranked games. Include variety when the user's preference is broad.
@@ -69,5 +73,6 @@ Avoid recommending only the highest-ranked games. Include variety when the user'
 - Mixed-experience groups need games where new players stay engaged and are not easily crushed by experts.
 - Party and family requests may need lower teaching time more than high BGG rank.
 - Dedicated club/store players may prefer deeper, longer, more specialized games.
+- Cooperative game requests should include coverage across weight bands when broad: classic easy-to-table co-ops, medium co-ops, heavy strategy co-ops, campaign/legacy co-ops, and semi-coops if appropriate. Do not omit classic gateway co-ops such as Pandemic just because heavier or higher-ranked coops also fit.
 - Some themes or mechanics can be socially sensitive: bluffing, betrayal, direct conflict, horror, war, colonial themes, or heavy negotiation.
 - If data is missing or the database seems thin for a niche, say so and supplement with general knowledge or current web checks.
